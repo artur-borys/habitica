@@ -198,13 +198,30 @@ export default {
     // Make sure the page has enough space so the drawer does not overlap content
     this.adjustPagePadding();
   },
+  beforeDestroy () {
+    // Remove calculated padding-bottom attribute from the footer when deleting the drawer
+    const footer = document.getElementsByClassName('row footer-row')[0].getElementsByTagName('footer')[0];
+    if (footer) {
+      // IE9 doesn't have removeProperty, but has removeAttribute
+      if (footer.style.removeProperty) {
+        footer.style.removeProperty('padding-bottom');
+      } else {
+        footer.style.removeAttribute('padding-bottom');
+      }
+    }
+  },
   methods: {
     adjustPagePadding () {
       const minPaddingBottom = 20;
       const drawerHeight = this.$el.offsetHeight;
-      const standardPage = document.getElementsByClassName('standard-page')[0];
-      if (standardPage) {
-        standardPage.style.paddingBottom = `${drawerHeight + minPaddingBottom}px`;
+      const footer = document.getElementsByClassName('row footer-row')[0].getElementsByTagName('footer')[0];
+      if (footer) {
+        const wasPreviouslyAtTheBottom = (window.pageYOffset + window.innerHeight)
+          >= document.body.scrollHeight;
+        footer.style.paddingBottom = `${drawerHeight + minPaddingBottom}px`;
+        if (wasPreviouslyAtTheBottom) {
+          window.scrollTo(0, document.body.scrollHeight);
+        }
       }
     },
     toggle () {
